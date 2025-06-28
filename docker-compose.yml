@@ -1,0 +1,171 @@
+version: '3.8'
+
+services:
+  # PostgreSQL с расширением pgvector
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: realestate_postgres
+    environment:
+      POSTGRES_DB: realestate_bot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-pgvector.sql:/docker-entrypoint-initdb.d/init-pgvector.sql
+    networks:
+      - realestate_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d realestate_bot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis для кэширования и очередей
+  redis:
+    image: redis:7-alpine
+    container_name: realestate_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - realestate_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Adminer для работы с БД
+  adminer:
+    image: adminer:latest
+    container_name: realestate_adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    networks:
+      - realestate_network
+    depends_on:
+      - postgres
+
+  # Redis Commander для мониторинга Redis
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: realestate_redis_commander
+    ports:
+      - "8081:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    networks:
+      - realestate_network
+    depends_on:
+      - redis
+
+  # FastAPI приложение
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: realestate_api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - .:/app
+      - ./temp:/app/temp
+    networks:
+      - realestate_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Telegram Bot
+  bot:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.bot
+    container_name: realestate_bot
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - .:/app
+      - ./temp:/app/temp
+    networks:
+      - realestate_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python -m app.bot.main
+
+  # Celery Worker
+  celery_worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.celery
+    container_name: realestate_celery_worker
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - .:/app
+      - ./temp:/app/temp
+    networks:
+      - realestate_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A app.tasks worker --loglevel=info
+
+  # Celery Beat Scheduler
+  celery_beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.celery
+    container_name: realestate_celery_beat
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - .:/app
+      - ./temp:/app/temp
+    networks:
+      - realestate_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A app.tasks beat --loglevel=info
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  realestate_network:
+    driver: bridge 

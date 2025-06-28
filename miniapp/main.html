@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Календарь событий</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 16px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .toggle-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--tg-theme-button-color, #0088cc);
+            background: transparent;
+            color: var(--tg-theme-button-text-color, #0088cc);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .toggle-btn.active {
+            background: var(--tg-theme-button-color, #0088cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+        
+        .calendar-container {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .nav-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-btn:hover {
+            background: var(--tg-theme-button-color, #0088cc);
+            color: white;
+        }
+        
+        .month-year {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        
+        .day-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 8px 4px;
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #999);
+        }
+        
+        .day-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .day-cell:hover {
+            background: var(--tg-theme-button-color, #0088cc);
+            color: white;
+        }
+        
+        .day-cell.today {
+            background: var(--tg-theme-button-color, #0088cc);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .day-cell.has-events {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .day-cell.other-month {
+            color: var(--tg-theme-hint-color, #ccc);
+        }
+        
+        .events-list {
+            margin-top: 20px;
+        }
+        
+        .event-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--tg-theme-button-color, #0088cc);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .event-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .event-time {
+            color: var(--tg-theme-hint-color, #666);
+            font-size: 14px;
+        }
+        
+        .no-events {
+            text-align: center;
+            color: var(--tg-theme-hint-color, #999);
+            padding: 40px 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .add-event-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--tg-theme-button-color, #0088cc);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📅 Мой календарь</h1>
+    </div>
+    
+    <div class="view-toggle">
+        <button class="toggle-btn active" onclick="switchView('calendar')">Календарь</button>
+        <button class="toggle-btn" onclick="switchView('list')">Список</button>
+    </div>
+    
+    <div id="calendar-view">
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button class="nav-btn" onclick="previousMonth()">‹</button>
+                <div class="month-year" id="monthYear"></div>
+                <button class="nav-btn" onclick="nextMonth()">›</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+    </div>
+    
+    <div id="list-view" style="display: none;">
+        <div class="events-list" id="eventsList">
+            <div class="loading">Загружаю события...</div>
+        </div>
+    </div>
+    
+    <button class="add-event-btn" onclick="addEvent()">+</button>
+
+    <script>
+        // Инициализация Telegram WebApp
+        let tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        
+        // Текущая дата
+        let currentDate = new Date();
+        let currentView = 'calendar';
+        let events = [];
+        
+        // Названия месяцев и дней
+        const months = [
+            'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        ];
+        
+        const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+        
+        // Переключение вида
+        function switchView(view) {
+            currentView = view;
+            
+            // Обновляем кнопки
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Показываем нужный вид
+            if (view === 'calendar') {
+                document.getElementById('calendar-view').style.display = 'block';
+                document.getElementById('list-view').style.display = 'none';
+                renderCalendar();
+            } else {
+                document.getElementById('calendar-view').style.display = 'none';
+                document.getElementById('list-view').style.display = 'block';
+                renderEventsList();
+            }
+        }
+        
+        // Навигация по месяцам
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+        
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+        
+        // Отрисовка календаря
+        function renderCalendar() {
+            const monthYear = document.getElementById('monthYear');
+            const calendarGrid = document.getElementById('calendarGrid');
+            
+            monthYear.textContent = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            // Очищаем сетку
+            calendarGrid.innerHTML = '';
+            
+            // Добавляем заголовки дней
+            dayNames.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+            
+            // Получаем первый день месяца
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            
+            // Определяем день недели первого дня (0 = воскресенье, нужно сделать понедельник = 0)
+            let startDay = firstDay.getDay();
+            startDay = startDay === 0 ? 6 : startDay - 1;
+            
+            // Добавляем пустые ячейки для предыдущего месяца
+            for (let i = 0; i < startDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'day-cell other-month';
+                calendarGrid.appendChild(emptyCell);
+            }
+            
+            // Добавляем дни текущего месяца
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day-cell';
+                dayCell.textContent = day;
+                
+                // Проверяем, есть ли события в этот день
+                const dayEvents = getEventsForDay(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
+                if (dayEvents.length > 0) {
+                    dayCell.classList.add('has-events');
+                }
+                
+                // Отмечаем сегодняшний день
+                const today = new Date();
+                if (currentDate.getFullYear() === today.getFullYear() &&
+                    currentDate.getMonth() === today.getMonth() &&
+                    day === today.getDate()) {
+                    dayCell.classList.add('today');
+                }
+                
+                dayCell.onclick = () => showDayEvents(day);
+                calendarGrid.appendChild(dayCell);
+            }
+        }
+        
+        // Получение событий для дня
+        function getEventsForDay(date) {
+            return events.filter(event => {
+                const eventDate = new Date(event.start_time);
+                return eventDate.toDateString() === date.toDateString();
+            });
+        }
+        
+        // Показать события дня
+        function showDayEvents(day) {
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+            const dayEvents = getEventsForDay(date);
+            
+            if (dayEvents.length === 0) {
+                tg.showAlert(`${day} ${months[currentDate.getMonth()]}\n\nСобытий нет`);
+            } else {
+                let message = `${day} ${months[currentDate.getMonth()]}\n\n`;
+                dayEvents.forEach(event => {
+                    const time = new Date(event.start_time).toLocaleTimeString('ru', {hour: '2-digit', minute: '2-digit'});
+                    message += `${time} - ${event.title}\n`;
+                });
+                tg.showAlert(message);
+            }
+        }
+        
+        // Отрисовка списка событий
+        function renderEventsList() {
+            const eventsList = document.getElementById('eventsList');
+            
+            if (events.length === 0) {
+                eventsList.innerHTML = '<div class="no-events">📅 Событий пока нет</div>';
+                return;
+            }
+            
+            // Сортируем события по дате
+            const sortedEvents = events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+            
+            eventsList.innerHTML = '';
+            sortedEvents.forEach(event => {
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                
+                const eventDate = new Date(event.start_time);
+                const dateStr = eventDate.toLocaleDateString('ru');
+                const timeStr = eventDate.toLocaleTimeString('ru', {hour: '2-digit', minute: '2-digit'});
+                
+                eventItem.innerHTML = `
+                    <div class="event-title">${event.title}</div>
+                    <div class="event-time">${dateStr} в ${timeStr}</div>
+                `;
+                
+                eventsList.appendChild(eventItem);
+            });
+        }
+        
+        // Добавление события
+        function addEvent() {
+            tg.showAlert('Для создания события отправьте сообщение боту:\n\n"Встреча завтра в 15:00"');
+        }
+        
+        // Загрузка событий
+        async function loadEvents() {
+            try {
+                const response = await fetch('/api/v1/events', {
+                    headers: {
+                        'Authorization': `Bearer ${tg.initData}`
+                    }
+                });
+                
+                if (response.ok) {
+                    events = await response.json();
+                    if (currentView === 'calendar') {
+                        renderCalendar();
+                    } else {
+                        renderEventsList();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading events:', error);
+                // Показываем тестовые данные
+                events = [
+                    {
+                        id: 1,
+                        title: 'Встреча с клиентом',
+                        start_time: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        title: 'Звонок по проекту',
+                        start_time: new Date(Date.now() + 24*60*60*1000).toISOString()
+                    }
+                ];
+                renderCalendar();
+            }
+        }
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCalendar();
+            loadEvents();
+        });
+    </script>
+</body>
+</html> 

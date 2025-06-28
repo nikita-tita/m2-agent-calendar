@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+env.bak/
+venv.bak/
+
+# Локальные файлы
+.env
+.env.local
+*.log
+temp/
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Логи и данные
+api_*.log
+bot_output.log
+tunnel*.log
+serveo.log
+ngrok.log
+celerybeat-schedule*
+
+# Временные файлы
+*.tmp
+*.temp 

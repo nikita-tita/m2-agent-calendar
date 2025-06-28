@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>М² Календарь - Демо</title>
+    
+    <!-- Стили -->
+    <style>
+/* M² Calendar Mini App Styles */
+:root {
+    --m2-primary: #FF6B35;
+    --m2-secondary: #004225;
+    --m2-accent: #FFB800;
+    --m2-dark: #1A1A1A;
+    --m2-light: #F8F9FA;
+    --m2-gray: #6C757D;
+    --m2-border: #DEE2E6;
+    --m2-success: #28A745;
+    --m2-danger: #DC3545;
+    --m2-warning: #FFC107;
+    
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+    
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: var(--m2-light);
+    color: var(--m2-dark);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+/* Header */
+.calendar-header {
+    background: white;
+    border-bottom: 1px solid var(--m2-border);
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.m2-logo {
+    background: linear-gradient(135deg, var(--m2-primary), var(--m2-accent));
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.header-content h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--m2-dark);
+}
+
+.view-switcher {
+    display: flex;
+    background: var(--m2-light);
+    border-radius: var(--radius-md);
+    padding: 2px;
+}
+
+.view-btn {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--m2-gray);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.view-btn.active {
+    background: var(--m2-primary);
+    color: white;
+}
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-btn {
+    background: var(--m2-light);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--m2-gray);
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+    background: var(--m2-border);
+}
+
+.current-period {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--m2-dark);
+}
+
+.today-btn {
+    background: var(--m2-primary);
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Calendar Main */
+.calendar-main {
+    padding: 16px;
+    min-height: calc(100vh - 200px);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Month View */
+.calendar-grid {
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: var(--m2-light);
+}
+
+.weekday {
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--m2-gray);
+    text-transform: uppercase;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    padding: 8px;
+    border-right: 1px solid var(--m2-border);
+    border-bottom: 1px solid var(--m2-border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    background: white;
+    min-height: 60px;
+}
+
+.calendar-day:hover {
+    background: var(--m2-light);
+}
+
+.calendar-day.other-month {
+    color: var(--m2-gray);
+    background: #fafafa;
+}
+
+.calendar-day.today {
+    background: rgba(255, 107, 53, 0.1);
+    color: var(--m2-primary);
+    font-weight: 600;
+}
+
+.calendar-day.selected {
+    background: var(--m2-primary);
+    color: white;
+}
+
+.day-number {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.day-events {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.event-dot {
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--m2-primary);
+}
+
+.event-dot.showing { background: #28a745; }
+.event-dot.call { background: #17a2b8; }
+.event-dot.deal { background: #ffc107; }
+.event-dot.task { background: #6f42c1; }
+
+/* Quick Actions */
+.quick-actions {
+    position: fixed;
+    bottom: 20px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    gap: 12px;
+    z-index: 50;
+}
+
+.quick-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: var(--shadow-md);
+}
+
+.quick-btn.primary {
+    background: var(--m2-primary);
+    color: white;
+}
+
+.quick-btn.secondary {
+    background: white;
+    color: var(--m2-gray);
+    border: 1px solid var(--m2-border);
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+.demo-banner {
+    background: linear-gradient(135deg, var(--m2-primary), var(--m2-accent));
+    color: white;
+    padding: 12px 16px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.demo-info {
+    background: white;
+    margin: 16px;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.demo-info h3 {
+    color: var(--m2-primary);
+    margin-bottom: 12px;
+}
+
+.demo-info ul {
+    list-style: none;
+    padding: 0;
+}
+
+.demo-info li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--m2-border);
+}
+
+.demo-info li:last-child {
+    border-bottom: none;
+}
+
+.feature-emoji {
+    margin-right: 8px;
+}
+    </style>
+</head>
+<body>
+    <div class="demo-banner">
+        🗓️ Демонстрация М² Календаря - Telegram Mini App
+    </div>
+
+    <div class="calendar-app">
+        <!-- Header -->
+        <header class="calendar-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="m2-logo">М²</div>
+                    <h1>Календарь</h1>
+                </div>
+                
+                <div class="view-switcher">
+                    <button class="view-btn active" data-view="month">Месяц</button>
+                    <button class="view-btn" data-view="week">Неделя</button>
+                    <button class="view-btn" data-view="day">День</button>
+                </div>
+            </div>
+            
+            <div class="calendar-nav">
+                <button class="nav-btn" id="prevBtn">‹</button>
+                <div class="current-period" id="currentPeriod">Декабрь 2024</div>
+                <button class="nav-btn" id="nextBtn">›</button>
+                <button class="today-btn" id="todayBtn">Сегодня</button>
+            </div>
+        </header>
+
+        <!-- Demo Info -->
+        <div class="demo-info">
+            <h3>🚀 Функции М² Календаря</h3>
+            <ul>
+                <li><span class="feature-emoji">📅</span> Полноценный календарь с месячным, недельным и дневным просмотром</li>
+                <li><span class="feature-emoji">➕</span> Создание и редактирование событий</li>
+                <li><span class="feature-emoji">🤝</span> Встречи с клиентами</li>
+                <li><span class="feature-emoji">🏠</span> Показы недвижимости</li>
+                <li><span class="feature-emoji">📞</span> Звонки и задачи</li>
+                <li><span class="feature-emoji">💰</span> Отслеживание сделок</li>
+                <li><span class="feature-emoji">🔄</span> Синхронизация с основным ботом</li>
+                <li><span class="feature-emoji">📱</span> Полная интеграция с Telegram</li>
+            </ul>
+        </div>
+
+        <!-- Main Calendar -->
+        <main class="calendar-main">
+            <!-- Month View -->
+            <div id="monthView" class="calendar-view">
+                <div class="calendar-grid">
+                    <div class="weekdays">
+                        <div class="weekday">Пн</div>
+                        <div class="weekday">Вт</div>
+                        <div class="weekday">Ср</div>
+                        <div class="weekday">Чт</div>
+                        <div class="weekday">Пт</div>
+                        <div class="weekday">Сб</div>
+                        <div class="weekday">Вс</div>
+                    </div>
+                    <div class="calendar-days" id="calendarDays">
+                        <!-- Демо дни -->
+                        <div class="calendar-day other-month">
+                            <div class="day-number">25</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">26</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">27</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">28</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">29</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">30</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">1</div>
+                        </div>
+                        <!-- Вторая неделя -->
+                        <div class="calendar-day">
+                            <div class="day-number">2</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">3</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">4</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">5</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">6</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">7</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">8</div>
+                        </div>
+                        <!-- Третья неделя -->
+                        <div class="calendar-day">
+                            <div class="day-number">9</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">10</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">11</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">12</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">13</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">14</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">15</div>
+                            <div class="day-events">
+                                <div class="event-dot showing"></div>
+                            </div>
+                        </div>
+                        <!-- Четвертая неделя -->
+                        <div class="calendar-day">
+                            <div class="day-number">16</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">17</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">18</div>
+                        </div>
+                        <div class="calendar-day today">
+                            <div class="day-number">19</div>
+                            <div class="day-events">
+                                <div class="event-dot"></div>
+                                <div class="event-dot call"></div>
+                            </div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">20</div>
+                            <div class="day-events">
+                                <div class="event-dot deal"></div>
+                            </div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">21</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">22</div>
+                        </div>
+                        <!-- Пятая неделя -->
+                        <div class="calendar-day">
+                            <div class="day-number">23</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">24</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">25</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">26</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">27</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">28</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">29</div>
+                        </div>
+                        <!-- Шестая неделя -->
+                        <div class="calendar-day">
+                            <div class="day-number">30</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">31</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">1</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">2</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">3</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">4</div>
+                        </div>
+                        <div class="calendar-day other-month">
+                            <div class="day-number">5</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="quick-btn primary" onclick="alert('Создание события в полной версии!')">
+                <span class="btn-icon">➕</span>
+                Создать
+            </button>
+            <button class="quick-btn secondary" onclick="alert('Синхронизация с Telegram ботом!')">
+                <span class="btn-icon">🔄</span>
+                Синхронизация
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Простая демонстрация интерактивности
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                alert(`Переключение на вид: ${btn.textContent}`);
+            });
+        });
+
+        document.getElementById('todayBtn').addEventListener('click', () => {
+            alert('Переход к сегодняшнему дню!');
+        });
+
+        document.querySelectorAll('.calendar-day').forEach(day => {
+            day.addEventListener('click', () => {
+                document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+                day.classList.add('selected');
+                const dayNum = day.querySelector('.day-number').textContent;
+                alert(`Выбран день: ${dayNum} декабря`);
+            });
+        });
+    </script>
+</body>
+</html>
