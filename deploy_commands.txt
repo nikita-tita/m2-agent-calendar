@@ -1,0 +1,24 @@
+# 🚀 КОМАНДЫ ДЛЯ ДЕПЛОЯ M² AGENT CALENDAR
+
+## 1️⃣ Загрузка на GitHub
+git remote add origin https://github.com/ваш-username/m2-agent-calendar.git
+git branch -M main
+git push -u origin main
+
+## 2️⃣ Переменные окружения для Railway
+
+TELEGRAM_BOT_TOKEN=7794113902:AAHIPTjgr1ZI5dz1b7m0P6xQK_NhmAKQ1KY
+OPENAI_API_KEY=ваш_openai_ключ_здесь
+
+# DATABASE_URL создаётся автоматически Railway при добавлении PostgreSQL
+
+## 3️⃣ После деплоя - настройка webhook
+python setup_webhook.py https://ваше-приложение.railway.app 7794113902:AAHIPTjgr1ZI5dz1b7m0P6xQK_NhmAKQ1KY
+
+## 4️⃣ Тестирование
+curl https://ваше-приложение.railway.app/health
+curl https://ваше-приложение.railway.app/api/v1/miniapp/
+
+## 5️⃣ Финальная проверка в Telegram
+/start - должен отвечать ботом
+Открыть Mini App - должен работать календарь 

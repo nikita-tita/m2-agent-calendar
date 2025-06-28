@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M² Agent Calendar - Деплой</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        .step {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .code {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .urgent { background: #ff6b6b; }
+        .success { background: #4ecdc4; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 M² Agent Calendar - Автодеплой</h1>
+        
+        <div class="step">
+            <h2>📋 ШАГ 1: GitHub Repository</h2>
+            <p><strong>Нажмите эту кнопку, чтобы создать репозиторий:</strong></p>
+            <a href="https://github.com/new" target="_blank" class="button urgent">
+                🗂️ Создать репозиторий GitHub
+            </a>
+            <div class="code">
+                Repository name: m2-agent-calendar<br>
+                Description: M² Agent Calendar - Telegram Bot for Real Estate Agents<br>
+                ✅ Public<br>
+                ✅ Add README file
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>🚂 ШАГ 2: Railway.app (Рекомендуется)</h2>
+            <a href="https://railway.app/new" target="_blank" class="button success">
+                🚀 Deploy на Railway
+            </a>
+            <p><strong>В Railway:</strong></p>
+            <ul>
+                <li>1. "Deploy from GitHub repo"</li>
+                <li>2. Выбрать `m2-agent-calendar`</li>
+                <li>3. Deploy Now</li>
+                <li>4. Добавить PostgreSQL (кнопка "+")</li>
+                <li>5. Variables → добавить токены</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h2>🎨 АЛЬТЕРНАТИВА: Render.com</h2>
+            <a href="https://render.com/dashboard" target="_blank" class="button">
+                🎨 Deploy на Render
+            </a>
+            <p>New → Web Service → Connect GitHub → выбрать репозиторий</p>
+        </div>
+
+        <div class="step">
+            <h2>🔥 АЛЬТЕРНАТИВА: Heroku</h2>
+            <a href="https://dashboard.heroku.com/new-app" target="_blank" class="button">
+                🔥 Deploy на Heroku
+            </a>
+            <p>Create app → Deploy → GitHub → Connect repository</p>
+        </div>
+
+        <div class="step">
+            <h2>📱 Переменные окружения (для всех платформ)</h2>
+            <div class="code">
+TELEGRAM_BOT_TOKEN=7794113902:AAHIPTjgr1ZI5dz1b7m0P6xQK_NhmAKQ1KY<br>
+OPENAI_API_KEY=your_openai_key_here
+            </div>
+            <p><em>Скопируйте эти переменные в Environment Variables на выбранной платформе</em></p>
+        </div>
+
+        <div class="step">
+            <h2>✅ После деплоя</h2>
+            <p>Скопируйте URL вашего приложения и выполните в терминале:</p>
+            <div class="code">
+python setup_webhook.py https://YOUR-APP-URL-HERE
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>🧪 Проверка</h2>
+            <p>Откройте эти ссылки после деплоя:</p>
+            <div class="code">
+https://your-app-url/health<br>
+https://your-app-url/api/v1/miniapp/
+            </div>
+            <p>Протестируйте бота: <strong>/start @m2_agentcalendar_bot</strong></p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <p><strong>🎉 Система готова к использованию!</strong></p>
+        </div>
+    </div>
+</body>
+</html> 

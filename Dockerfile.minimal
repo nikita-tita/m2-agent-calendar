@@ -1,0 +1,36 @@
+FROM python:3.11-slim
+
+# Установка минимальных системных зависимостей
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Создание рабочей директории
+WORKDIR /app
+
+# Установка минимальных Python зависимостей
+RUN pip install --no-cache-dir \
+    fastapi==0.104.1 \
+    uvicorn[standard]==0.24.0 \
+    pydantic==2.5.0 \
+    pydantic-settings==2.0.3 \
+    python-multipart==0.0.6
+
+# Копирование конфигурации и приложения
+COPY app/config_minimal.py app/config_minimal.py
+COPY app/main_minimal.py app/main_minimal.py
+COPY app/__init__.py app/__init__.py
+
+# Переменные окружения
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Порт
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Запуск приложения
+CMD ["python", "-m", "app.main_minimal"] 

@@ -5,6 +5,15 @@ RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     postgresql-client \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libgthread-2.0-0 \
+    libgtk-3-0 \
+    libgdk-pixbuf2.0-0 \
+    libxrender1 \
+    libsm6 \
+    libxext6 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Создание рабочей директории
