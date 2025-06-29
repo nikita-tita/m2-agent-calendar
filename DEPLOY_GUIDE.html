@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M² Agent Calendar - Полная инструкция деплоя</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { text-align: center; margin-bottom: 30px; font-size: 2.5em; }
+        h2 { color: #4ecdc4; margin: 30px 0 15px 0; border-bottom: 2px solid #4ecdc4; padding-bottom: 10px; }
+        h3 { color: #ffd93d; margin: 20px 0 10px 0; }
+        .step {
+            background: rgba(255,255,255,0.15);
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 15px;
+            border-left: 5px solid #4CAF50;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .button.urgent { background: linear-gradient(45deg, #ff6b6b, #ff5252); }
+        .button.info { background: linear-gradient(45deg, #4ecdc4, #26d0ce); }
+        .code {
+            background: rgba(0,0,0,0.4);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Monaco', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 4px solid #ffd93d;
+        }
+        .warning {
+            background: rgba(255,107,107,0.2);
+            border: 2px solid #ff6b6b;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .success {
+            background: rgba(76,175,80,0.2);
+            border: 2px solid #4CAF50;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .tabs {
+            display: flex;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab:hover, .tab.active {
+            background: rgba(255,255,255,0.2);
+        }
+        .tab-content {
+            display: none;
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .tab-content.active { display: block; }
+        ul { margin-left: 20px; }
+        li { margin: 10px 0; }
+        .diagnostic {
+            background: rgba(255,193,7,0.2);
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 M² Agent Calendar - Полная инструкция деплоя</h1>
+        
+        <div class="diagnostic">
+            <h3>🔍 Диагностика текущей проблемы</h3>
+            <p><strong>Проблема:</strong> Бот не работает в облаке, Railway приложение не отвечает на webhook</p>
+            <p><strong>Причина:</strong> Railway запустил базовую страницу, а не наше приложение</p>
+            <p><strong>Решение:</strong> Правильная настройка переменных окружения и проверка запуска</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('render')">🎨 Render.com</div>
+            <div class="tab" onclick="showTab('railway')">🚂 Railway.app</div>
+            <div class="tab" onclick="showTab('heroku')">🔥 Heroku</div>
+        </div>
+
+        <!-- RENDER.COM -->
+        <div id="render" class="tab-content active">
+            <h2>🎨 Render.com - Рекомендуется (Самый надёжный)</h2>
+            
+            <div class="step">
+                <h3>📋 Шаг 1: Создание аккаунта и сервиса</h3>
+                <a href="https://render.com/dashboard" target="_blank" class="button urgent">
+                    🎨 Открыть Render Dashboard
+                </a>
+                <ul>
+                    <li>Нажать <strong>"New +"</strong></li>
+                    <li>Выбрать <strong>"Web Service"</strong></li>
+                    <li>Connect GitHub account</li>
+                    <li>Выбрать репозиторий <code>m2-agent-calendar</code></li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h3>⚙️ Шаг 2: Настройки сервиса</h3>
+                <div class="code">
+<strong>Name:</strong> m2-agent-calendar
+<strong>Build Command:</strong> pip install -r requirements.txt
+<strong>Start Command:</strong> uvicorn app.main:app --host 0.0.0.0 --port $PORT
+<strong>Instance Type:</strong> Free
+                </div>
+            </div>
+
+            <div class="step">
+                <h3>🔑 Шаг 3: Environment Variables</h3>
+                <p>В разделе <strong>Environment</strong> добавить:</p>
+                <div class="code">
+TELEGRAM_BOT_TOKEN=7794113902:AAHIPTjgr1ZI5dz1b7m0P6xQK_NhmAKQ1KY
+OPENAI_API_KEY=your_openai_key_here
+DATABASE_URL=будет_создан_автоматически
+                </div>
+            </div>
+
+            <div class="step">
+                <h3>🗄️ Шаг 4: Добавление PostgreSQL</h3>
+                <ul>
+                    <li>В Dashboard нажать <strong>"New +"</strong></li>
+                    <li>Выбрать <strong>"PostgreSQL"</strong></li>
+                    <li>Скопировать <strong>External Database URL</strong></li>
+                    <li>Добавить в Environment Variables как <code>DATABASE_URL</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- RAILWAY.APP -->
+        <div id="railway" class="tab-content">
+            <h2>🚂 Railway.app - Быстрый деплой</h2>
+            
+            <div class="warning">
+                <strong>⚠️ Проблема с Railway:</strong> Часто запускает неправильное приложение. Нужна точная настройка.
+            </div>
+
+            <div class="step">
+                <h3>📋 Шаг 1: Создание проекта</h3>
+                <a href="https://railway.app/new" target="_blank" class="button">
+                    🚂 Railway New Project
+                </a>
+                <ul>
+                    <li><strong>"Deploy from GitHub repo"</strong></li>
+                    <li>Выбрать <code>m2-agent-calendar</code></li>
+                    <li><strong>Deploy Now</strong></li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h3>🔧 Шаг 2: Принудительная настройка</h3>
+                <p>В Settings → Deploy добавить:</p>
+                <div class="code">
+<strong>Build Command:</strong> pip install -r requirements.txt
+<strong>Start Command:</strong> uvicorn app.main:app --host 0.0.0.0 --port $PORT
+                </div>
+            </div>
+
+            <div class="step">
+                <h3>🔑 Шаг 3: Variables</h3>
+                <div class="code">
+TELEGRAM_BOT_TOKEN=7794113902:AAHIPTjgr1ZI5dz1b7m0P6xQK_NhmAKQ1KY
+OPENAI_API_KEY=your_openai_key_here
+PORT=8000
+                </div>
+            </div>
+        </div>
+
+        <!-- HEROKU -->
+        <div id="heroku" class="tab-content">
+            <h2>🔥 Heroku - Классическое решение</h2>
+            
+            <div class="step">
+                <h3>📋 Шаг 1: Создание приложения</h3>
+                <a href="https://dashboard.heroku.com/new-app" target="_blank" class="button">
+                    🔥 Create Heroku App
+                </a>
+                <div class="code">
+App name: m2-agent-calendar-[random]
+Region: United States или Europe
+                </div>
+            </div>
+
+            <div class="step">
+                <h3>🚀 Шаг 2: Deploy</h3>
+                <ul>
+                    <li>Deploy → <strong>GitHub</strong></li>
+                    <li>Connect to GitHub</li>
+                    <li>Search: <code>m2-agent-calendar</code></li>
+                    <li><strong>Enable Automatic Deploys</strong></li>
+                    <li><strong>Deploy Branch</strong></li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h3>🗄️ Шаг 3: PostgreSQL</h3>
+                <ul>
+                    <li>Resources → Add-ons</li>
+                    <li>Search: <strong>Heroku Postgres</strong></li>
+                    <li>Plan: <strong>Hobby Dev - Free</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>🔗 Шаг ФИНАЛ: Настройка Webhook (для всех платформ)</h2>
+            <p>После получения URL приложения выполнить в терминале:</p>
+            <div class="code">
+# Скопировать ВАШ URL и выполнить:
+python setup_webhook.py https://YOUR-APP-URL
+
+# Примеры URL:
+# Render: https://m2-agent-calendar.onrender.com
+# Railway: https://your-app.railway.app  
+# Heroku: https://your-app.herokuapp.com
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>🧪 Проверка работы</h2>
+            <div class="code">
+# 1. Проверка API
+curl https://YOUR-APP-URL/health
+
+# 2. Проверка Mini App
+curl https://YOUR-APP-URL/api/v1/miniapp/
+
+# 3. Проверка webhook
+curl -X POST https://YOUR-APP-URL/api/v1/webhook \
+  -H "Content-Type: application/json" \
+  -d '{"test": true}'
+            </div>
+            
+            <div class="success">
+                <strong>✅ Успешный результат:</strong>
+                <ul>
+                    <li>Health: <code>{"status":"healthy"}</code></li>
+                    <li>Mini App: HTML страница с календарём</li>
+                    <li>Webhook: <code>{"success": true}</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>📱 Финальный тест в Telegram</h2>
+            <a href="https://t.me/m2_agentcalendar_bot" target="_blank" class="button info">
+                📱 Открыть бота в Telegram
+            </a>
+            <p>Отправить команду: <strong>/start</strong></p>
+            <p>Ожидаемый результат: Бот отвечает приветственным сообщением</p>
+        </div>
+
+        <div class="diagnostic">
+            <h3>🚨 Если что-то не работает:</h3>
+            <ol>
+                <li><strong>Проверить логи приложения</strong> в панели управления</li>
+                <li><strong>Убедиться что ENV переменные установлены</strong></li>
+                <li><strong>Проверить что запущена правильная команда:</strong> <code>uvicorn app.main:app</code></li>
+                <li><strong>Webhook настроен на правильный URL:</strong> <code>/api/v1/webhook</code></li>
+            </ol>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <h2>🎉 ГОТОВО!</h2>
+            <p>Система M² Agent Calendar готова к использованию!</p>
+            <p><strong>Telegram Bot:</strong> @m2_agentcalendar_bot</p>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html> 
