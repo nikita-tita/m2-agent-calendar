@@ -7,15 +7,16 @@ cmd = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
 [variables]
 PYTHONPATH = "/app"
 PYTHONUNBUFFERED = "1"
+DATABASE_URL = "sqlite+aiosqlite:///./railway_db.sqlite"
 
 [phases.build]
 cmds = [
-    "pip install -r requirements.txt"
+    "pip install -r requirements.txt",
+    "mkdir -p /app/db"
 ]
 
 [phases.setup]
 nixPkgs = [
     "python311",
-    "python311Packages.pip",
-    "postgresql"
-] 
+    "python311Packages.pip"
+]
