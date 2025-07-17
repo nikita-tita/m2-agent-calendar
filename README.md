@@ -104,7 +104,7 @@ cp env.example .env
 
 2. **Заполните токены:**
 ```env
-BOT_TOKEN=7794113902:AAHIPTjgr1ZI5dz1b7m0P6xQK_NhmAKQ1KY
+BOT_TOKEN=your-telegram-bot-token-here
 OPENAI_API_KEY=sk-ваш-ключ-openai
 DATABASE_URL=sqlite:///./real_estate_bot.db
 ```
